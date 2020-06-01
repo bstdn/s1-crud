@@ -1,6 +1,6 @@
 {
   "name": "@bstdn/s1-crud",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A bstdn project",
   "main": "dist/s1-crud.js",
   "scripts": {
@@ -42,7 +42,7 @@
     "vue-loader": "^13.0.5",
     "vue-template-compiler": "^2.5.19",
     "webpack": "^3.6.0",
-    "webpack-dev-server": "^2.9.1"
+    "webpack-dev-server": "^3.1.11"
   },
   "homepage": "https://github.com/bstdn/s1-crud#readme"
 }
