@@ -153,143 +153,141 @@
                 :label="handleFormTemplateMode(key).label"
                 :prop="key"
               >
-                <slot :name="key" :value="value" :row="editDataStorage">
-                  <el-input
-                    v-if="!handleFormTemplateMode(key).component || !handleFormTemplateMode(key).component.name || handleFormTemplateMode(key).component.name === 'el-input'"
+                <el-input
+                  v-if="!handleFormTemplateMode(key).component || !handleFormTemplateMode(key).component.name || handleFormTemplateMode(key).component.name === 'el-input'"
+                  v-model="formData[key]"
+                  v-bind="handleFormTemplateMode(key).component"
+                  :maxlength="handleAttribute(handleFormTemplateMode(key).component ? handleFormTemplateMode(key).component.maxlength : 255, 255)"
+                  :clearable="handleAttribute(handleFormTemplateMode(key).component ? handleFormTemplateMode(key).component.clearable : true, true)"
+                  @change="$emit('form-data-change', { key, value })"
+                >
+                  <template
+                    v-if="handleFormTemplateMode(key).component && handleFormTemplateMode(key).component.prepend"
+                    slot="prepend"
+                  >{{ handleFormTemplateMode(key).component.prepend }}</template>
+                  <template
+                    v-if="handleFormTemplateMode(key).component && handleFormTemplateMode(key).component.append"
+                    slot="append"
+                  >{{ handleFormTemplateMode(key).component.append }}</template>
+                </el-input>
+                <template v-else-if="handleFormTemplateMode(key).component.name === 'el-input-number'">
+                  <el-input-number
                     v-model="formData[key]"
                     v-bind="handleFormTemplateMode(key).component"
-                    :maxlength="handleAttribute(handleFormTemplateMode(key).component ? handleFormTemplateMode(key).component.maxlength : 255, 255)"
-                    :clearable="handleAttribute(handleFormTemplateMode(key).component ? handleFormTemplateMode(key).component.clearable : true, true)"
+                    :min="handleAttribute(handleFormTemplateMode(key).component.min, 0)"
+                    :controls-position="handleAttribute(handleFormTemplateMode(key).component.controlsPosition, 'right')"
                     @change="$emit('form-data-change', { key, value })"
-                  >
-                    <template
-                      v-if="handleFormTemplateMode(key).component && handleFormTemplateMode(key).component.prepend"
-                      slot="prepend"
-                    >{{ handleFormTemplateMode(key).component.prepend }}</template>
-                    <template
-                      v-if="handleFormTemplateMode(key).component && handleFormTemplateMode(key).component.append"
-                      slot="append"
-                    >{{ handleFormTemplateMode(key).component.append }}</template>
-                  </el-input>
-                  <template v-else-if="handleFormTemplateMode(key).component.name === 'el-input-number'">
-                    <el-input-number
-                      v-model="formData[key]"
-                      v-bind="handleFormTemplateMode(key).component"
-                      :min="handleAttribute(handleFormTemplateMode(key).component.min, 0)"
-                      :controls-position="handleAttribute(handleFormTemplateMode(key).component.controlsPosition, 'right')"
-                      @change="$emit('form-data-change', { key, value })"
-                    />
-                    <el-tag
-                      v-if="handleFormTemplateMode(key).component.tag"
-                      :type="handleAttribute(handleFormTemplateMode(key).component.tagType, 'danger')"
-                    >{{ handleFormTemplateMode(key).component.tag }}</el-tag>
+                  />
+                  <el-tag
+                    v-if="handleFormTemplateMode(key).component.tag"
+                    :type="handleAttribute(handleFormTemplateMode(key).component.tagType, 'danger')"
+                  >{{ handleFormTemplateMode(key).component.tag }}</el-tag>
+                </template>
+                <el-radio-group
+                  v-else-if="handleFormTemplateMode(key).component.name === 'el-radio'"
+                  v-model="formData[key]"
+                  v-bind="handleFormTemplateMode(key).component"
+                  @change="$emit('form-data-change', { key, value })"
+                >
+                  <template v-if="handleFormTemplateMode(key).component.buttonMode">
+                    <el-radio-button
+                      v-for="option in handleFormTemplateMode(key).component.options"
+                      :key="option.value"
+                      :disabled="option.disabled"
+                      :label="option.value"
+                    >{{ option.label }}</el-radio-button>
                   </template>
-                  <el-radio-group
-                    v-else-if="handleFormTemplateMode(key).component.name === 'el-radio'"
-                    v-model="formData[key]"
-                    v-bind="handleFormTemplateMode(key).component"
-                    @change="$emit('form-data-change', { key, value })"
-                  >
-                    <template v-if="handleFormTemplateMode(key).component.buttonMode">
-                      <el-radio-button
-                        v-for="option in handleFormTemplateMode(key).component.options"
-                        :key="option.value"
-                        :disabled="option.disabled"
-                        :label="option.value"
-                      >{{ option.label }}</el-radio-button>
-                    </template>
-                    <template v-else>
-                      <el-radio
-                        v-for="option in handleFormTemplateMode(key).component.source ? sourceOptions[key] : handleFormTemplateMode(key).component.options"
-                        :key="option.value"
-                        :disabled="option.disabled"
-                        :label="option.value"
-                      >{{ option.label }}</el-radio>
-                    </template>
-                  </el-radio-group>
-                  <el-checkbox-group
-                    v-else-if="handleFormTemplateMode(key).component.name === 'el-checkbox'"
-                    v-model="formData[key]"
-                    v-bind="handleFormTemplateMode(key).component"
-                    @change="$emit('form-data-change', { key, value })"
-                  >
-                    <template v-if="handleFormTemplateMode(key).component.buttonMode">
-                      <el-checkbox-button
-                        v-for="option in handleFormTemplateMode(key).component.source ? sourceOptions[key] : handleFormTemplateMode(key).component.options"
-                        :key="option.value"
-                        :label="option.value"
-                      >{{ option.label }}</el-checkbox-button>
-                    </template>
-                    <template v-else>
-                      <el-checkbox
-                        v-for="option in handleFormTemplateMode(key).component.source ? sourceOptions[key] : handleFormTemplateMode(key).component.options"
-                        :key="option.value"
-                        :label="option.value"
-                      >{{ option.label }}</el-checkbox>
-                    </template>
-                  </el-checkbox-group>
-                  <el-select
-                    v-else-if="handleFormTemplateMode(key).component.name === 'el-select'"
-                    v-model="formData[key]"
-                    v-bind="handleFormTemplateMode(key).component"
-                    :clearable="handleAttribute(handleFormTemplateMode(key).component.clearable, true)"
-                    :filterable="handleAttribute(handleFormTemplateMode(key).component.filterable, true)"
-                    :remote-method="(query) => $emit('form-remote-method', { key, query })"
-                    :style="handleAttribute(handleFormTemplateMode(key).component.style, 'width: 100%;')"
-                    @change="$emit('form-data-change', { key, value })"
-                  >
-                    <el-option
+                  <template v-else>
+                    <el-radio
                       v-for="option in handleFormTemplateMode(key).component.source ? sourceOptions[key] : handleFormTemplateMode(key).component.options"
                       :key="option.value"
-                      v-bind="option"
-                    />
-                  </el-select>
-                  <el-cascader
-                    v-else-if="handleFormTemplateMode(key).component.name === 'el-cascader'"
-                    v-model="formData[key]"
-                    v-bind="handleFormTemplateMode(key).component"
-                    :options="handleFormTemplateMode(key).component.source ? sourceOptions[key] : handleFormTemplateMode(key).component.options"
-                    :clearable="handleAttribute(handleFormTemplateMode(key).component.clearable, true)"
-                    :filterable="handleAttribute(handleFormTemplateMode(key).component.filterable, true)"
-                    :style="handleAttribute(handleFormTemplateMode(key).component.style, 'width: 100%;')"
-                    @change="$emit('form-data-change', { key, value })"
+                      :disabled="option.disabled"
+                      :label="option.value"
+                    >{{ option.label }}</el-radio>
+                  </template>
+                </el-radio-group>
+                <el-checkbox-group
+                  v-else-if="handleFormTemplateMode(key).component.name === 'el-checkbox'"
+                  v-model="formData[key]"
+                  v-bind="handleFormTemplateMode(key).component"
+                  @change="$emit('form-data-change', { key, value })"
+                >
+                  <template v-if="handleFormTemplateMode(key).component.buttonMode">
+                    <el-checkbox-button
+                      v-for="option in handleFormTemplateMode(key).component.source ? sourceOptions[key] : handleFormTemplateMode(key).component.options"
+                      :key="option.value"
+                      :label="option.value"
+                    >{{ option.label }}</el-checkbox-button>
+                  </template>
+                  <template v-else>
+                    <el-checkbox
+                      v-for="option in handleFormTemplateMode(key).component.source ? sourceOptions[key] : handleFormTemplateMode(key).component.options"
+                      :key="option.value"
+                      :label="option.value"
+                    >{{ option.label }}</el-checkbox>
+                  </template>
+                </el-checkbox-group>
+                <el-select
+                  v-else-if="handleFormTemplateMode(key).component.name === 'el-select'"
+                  v-model="formData[key]"
+                  v-bind="handleFormTemplateMode(key).component"
+                  :clearable="handleAttribute(handleFormTemplateMode(key).component.clearable, true)"
+                  :filterable="handleAttribute(handleFormTemplateMode(key).component.filterable, true)"
+                  :remote-method="(query) => $emit('form-remote-method', { key, query })"
+                  :style="handleAttribute(handleFormTemplateMode(key).component.style, 'width: 100%;')"
+                  @change="$emit('form-data-change', { key, value })"
+                >
+                  <el-option
+                    v-for="option in handleFormTemplateMode(key).component.source ? sourceOptions[key] : handleFormTemplateMode(key).component.options"
+                    :key="option.value"
+                    v-bind="option"
                   />
-                  <el-switch
-                    v-else-if="handleFormTemplateMode(key).component.name === 'el-switch'"
-                    v-model="formData[key]"
-                    v-bind="handleFormTemplateMode(key).component"
-                    :active-color="handleAttribute(handleFormTemplateMode(key).component.activeColor, '#13ce66')"
-                    :inactive-color="handleAttribute(handleFormTemplateMode(key).component.inactiveColor, '#ff4949')"
-                    @change="$emit('form-data-change', { key, value })"
-                  />
-                  <el-date-picker
-                    v-else-if="handleFormTemplateMode(key).component.name === 'el-date-picker'"
-                    v-model="formData[key]"
-                    v-bind="handleFormTemplateMode(key).component"
-                    @change="$emit('form-data-change', { key, value })"
-                  />
-                  <el-rate
-                    v-else-if="handleFormTemplateMode(key).component.name === 'el-rate'"
-                    v-model="formData[key]"
-                    v-bind="handleFormTemplateMode(key).component"
-                    :colors="handleAttribute(handleFormTemplateMode(key).component.colors, ['#99A9BF', '#F7BA2A', '#FF9900'])"
-                    :style="handleAttribute(handleFormTemplateMode(key).component.style, 'display: inline-block;')"
-                    @change="$emit('form-data-change', { key, value })"
-                  />
-                  <el-color-picker
-                    v-else-if="handleFormTemplateMode(key).component.name === 'el-color-picker'"
-                    v-model="formData[key]"
-                    v-bind="handleFormTemplateMode(key).component"
-                    @change="$emit('form-data-change', { key, value })"
-                  />
-                  <template v-else-if="handleFormTemplateMode(key).component.name === 'text'">{{ formData[key] }}</template>
-                  <render-custom-component
-                    v-else-if="handleFormTemplateMode(key).component.name"
-                    v-model="formData[key]"
-                    :component-name="handleFormTemplateMode(key).component.name"
-                    :props="handleFormTemplateMode(key).component.props ? handleFormTemplateMode(key).component.props : null"
-                  />
-                </slot>
+                </el-select>
+                <el-cascader
+                  v-else-if="handleFormTemplateMode(key).component.name === 'el-cascader'"
+                  v-model="formData[key]"
+                  v-bind="handleFormTemplateMode(key).component"
+                  :options="handleFormTemplateMode(key).component.source ? sourceOptions[key] : handleFormTemplateMode(key).component.options"
+                  :clearable="handleAttribute(handleFormTemplateMode(key).component.clearable, true)"
+                  :filterable="handleAttribute(handleFormTemplateMode(key).component.filterable, true)"
+                  :style="handleAttribute(handleFormTemplateMode(key).component.style, 'width: 100%;')"
+                  @change="$emit('form-data-change', { key, value })"
+                />
+                <el-switch
+                  v-else-if="handleFormTemplateMode(key).component.name === 'el-switch'"
+                  v-model="formData[key]"
+                  v-bind="handleFormTemplateMode(key).component"
+                  :active-color="handleAttribute(handleFormTemplateMode(key).component.activeColor, '#13ce66')"
+                  :inactive-color="handleAttribute(handleFormTemplateMode(key).component.inactiveColor, '#ff4949')"
+                  @change="$emit('form-data-change', { key, value })"
+                />
+                <el-date-picker
+                  v-else-if="handleFormTemplateMode(key).component.name === 'el-date-picker'"
+                  v-model="formData[key]"
+                  v-bind="handleFormTemplateMode(key).component"
+                  @change="$emit('form-data-change', { key, value })"
+                />
+                <el-rate
+                  v-else-if="handleFormTemplateMode(key).component.name === 'el-rate'"
+                  v-model="formData[key]"
+                  v-bind="handleFormTemplateMode(key).component"
+                  :colors="handleAttribute(handleFormTemplateMode(key).component.colors, ['#99A9BF', '#F7BA2A', '#FF9900'])"
+                  :style="handleAttribute(handleFormTemplateMode(key).component.style, 'display: inline-block;')"
+                  @change="$emit('form-data-change', { key, value })"
+                />
+                <el-color-picker
+                  v-else-if="handleFormTemplateMode(key).component.name === 'el-color-picker'"
+                  v-model="formData[key]"
+                  v-bind="handleFormTemplateMode(key).component"
+                  @change="$emit('form-data-change', { key, value })"
+                />
+                <template v-else-if="handleFormTemplateMode(key).component.name === 'text'">{{ formData[key] }}</template>
+                <render-custom-component
+                  v-else-if="handleFormTemplateMode(key).component.name"
+                  v-model="formData[key]"
+                  :component-name="handleFormTemplateMode(key).component.name"
+                  :props="handleFormTemplateMode(key).component.props ? handleFormTemplateMode(key).component.props : null"
+                />
               </el-form-item>
             </el-col>
           </template>
